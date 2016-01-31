@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<script type=text/javascript>
+	// once the document is ready the file been loaded in to Object
+	var data;
+	$( document ).ready(function() {
+		$.getJSON($SCRIPT_ROOT + '/dumpgraphdata', {
+			filename: '{{filename}}',
+		}, function(data) {
+			console.log(data);
+		});
+		return false;
+	});
+	
+	$(function() {
+		$('#graphsyntax').keyup(function() {
+			var graphsyntax = $('textarea#graphsyntax').val();
+			var lastChar = graphsyntax.substr(graphsyntax.length - 1);
+
+			if (lastChar == ";") {
+				$("div").remove("#inneralertdiv");
+				graphsyntax = graphsyntax.substr(0, graphsyntax.length-1);
+				$.getJSON($SCRIPT_ROOT + '/processgraphsyntax', {
+					graphsyntax: graphsyntax
+				}, function (data) {
+					console.log(data);
+					
+					var graphdata = {};
+					var columns = {};
+					var wholedataarray = [];
+					
+					$.each(data, function(k, v){
+						if (k == "ferror") {
+							$("div").remove("#inneralertdiv");
+							$("#alertdiv").append("<div id='inneralertdiv' class='alert alert-success'> <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>"+v+"</div>")
+							return true;
+						}
+
+						if (k == "graphtype") {
+							return true;
+						}
+
+						if (k == "error") {
+							$("div").remove("#inneralertdiv");
+							$("#alertdiv").append("<div id='inneralertdiv' class='alert alert-success'> <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>"+v+"</div>")
+							return true;
+						}
+						
+						var dataarray = [];
+						$.each( v, function( index, value ){
+							dataarray.push(value);
+						});
+						wholedataarray.push(dataarray);
+					});
+
+					columns["columns"] = wholedataarray;
+					graphdata["data"] = columns;
+					graphdata["data"]["type"] = data["graphtype"];
+					
+					// initializing the graph
+					var chart = c3.generate({
+						bindto: '#chart',
+						data: graphdata["data"]
+					});
+
+				});
+				return false;
+			}
+
+		});
+
+	});
+</script>
+
+<div id="enterdata">
+
+	<textarea id="graphsyntax" placeholder="Graph Syntax" autofocus style="font-size: 20px; font-family: 'Montserrat', sans-serif; width: 100%; border: none; margin: auto; *.focus: {outline:none}"></textarea>
+
+	<br>
+
+	<div id="alertdiv">
+	</div>
+	<br>
+	<div id="chart">
+		
+	</div>
+</div>
+{% endblock %}

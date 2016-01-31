@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <title>Graphie - A language of Graphs</title>
+	
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('[data-toggle="tooltip"]').tooltip();   
+		});
+	</script>
+
+	<script type="text/javascript">
+  		$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+	</script>
+	
+	<link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>
+	<link href="{{ url_for('.static', filename='CSS/style.css') }}" rel="stylesheet">
+	<link href='https://fonts.googleapis.com/css?family=Lobster' rel='stylesheet' type='text/css'>
+		
+	<link href="{{ url_for('.static', filename='CSS/c3.css') }}" rel='stylesheet' type='text/css'>
+
+</script>
+			<script src="{{ url_for('.static', filename='JS/d3.min.js') }}" type="text/javascript">
+	</script>
+	<script src="{{ url_for('.static', filename='JS/c3.min.js') }}" type="text/javascript"></script>
+	<link href="{{ url_for('.static', filename='CSS/style.css') }}" rel="stylesheet" type='text/css'>
+  </head>
+  <body>
+  	<h1> Graphie </h1>
+    {% block content %}{% endblock %}
+  </body>
+</html>
