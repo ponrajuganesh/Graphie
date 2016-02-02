@@ -1,9 +1,70 @@
 {% extends "base.html" %}
 {% block content %}
+<script type="text/javascript">
+	$( document ).ready(function() {
+		
+		var data = new Object();
+
+		var columns = [
+				['Physics', 20, 90, 30, 50, 300, 40],
+				['Chemistry', 30, 200, 100, 400, 150, 250],
+				['Maths', 230, 190, 300, 500, 300, 400]   
+		];
+
+		data = {
+				columns: columns
+		}
+
+		var chart = c3.generate({
+				bindto: '#tutorials',
+				data: data
+		});
+
+		var charttypes = new Object();
+		var colsstring = "physics chemistry maths";
+		charttypes["pie"] =  colsstring;
+		charttypes["spline"] =  colsstring;
+		charttypes["donut"] =  colsstring;
+		charttypes["area"] =  colsstring;
+		
+		var i = 0;
+		$.each( charttypes, function( key, value ){
+			i++;
+			drawGraph(key, value, i);
+		});
+		
+		function drawGraph(charttype, helptext, i) {
+			 setTimeout(function () {
+				 		$("#graphtypetext").text("");
+						$("#graphtypetext").text(charttype);
+						$("#graphtypetext").fadeIn();
+				 		$("#helptext").text("");
+				 		$("#helptext").text(helptext); 
+						
+				}, 2000 + i * 2700); 
+			
+			 setTimeout(function () {
+						chart.load({
+								columns: columns,
+								type: charttype
+						});
+				}, 2000 + i * 3000); 
+		}
+	});
+											
+</script>
 <div id="maindiv" style="margin:auto">
 	<form action="/upload_file" method="post" enctype="multipart/form-data">
       <p><input type=file name=file></p>
       <p><input type=submit value=Upload></p>
 	</form>
+	
+	<div style="margin:auto">
+			<h2 id="graphtypetext"> line </h2>
+			<h2 id="helptext" style="margin: auto"> physics chemistry maths</h2>
+		<div id="tutorials">
+
+		</div>
+	</div>
 </div>
 {% endblock %}
