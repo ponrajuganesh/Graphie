@@ -16,6 +16,7 @@
 		$('#graphsyntax').keyup(function() {
 			var graphsyntax = $('textarea#graphsyntax').val();
 			var lastChar = graphsyntax.substr(graphsyntax.length - 1);
+			var columnstyped = [];
 
 			if (lastChar == ";") {
 				$("div").remove("#inneralertdiv");
@@ -23,7 +24,7 @@
 				$.getJSON($SCRIPT_ROOT + '/processgraphsyntax', {
 					graphsyntax: graphsyntax
 				}, function (data) {
-					console.log(data);
+					
 					
 					var graphdata = {};
 					var columns = {};
@@ -36,7 +37,7 @@
 							return true;
 						}
 
-						if (k == "graphtype") {
+						if (k == "graphtype" || k == "axis") {
 							return true;
 						}
 
@@ -47,6 +48,7 @@
 						}
 						
 						var dataarray = [];
+						columnstyped.push(k);
 						$.each( v, function( index, value ){
 							dataarray.push(value);
 						});
@@ -57,6 +59,20 @@
 					graphdata["data"] = columns;
 					graphdata["data"]["type"] = data["graphtype"];
 					
+					if (data["graphtype"] == "sbar") {
+						graphdata["data"]["type"] = "bar";
+						graphdata["data"]["groups"] = [columnstyped];
+					}
+					
+					
+					if (data["axis"] != undefined) {
+						graphdata["data"]["x"] = "x";
+						graphdata["axis"] = {};
+						graphdata["axis"]["x"] = {};
+						graphdata["axis"]["x"]["tick"] = {};
+						graphdata["axis"]["x"]["tick"]["values"] = data["axis"]
+					}
+					console.log(graphdata);
 					// initializing the graph
 					var chart = c3.generate({
 						bindto: '#chart',
@@ -74,7 +90,7 @@
 
 <div id="enterdata">
 
-	<textarea id="graphsyntax" placeholder="graph_type col1 col2 col3" autofocus style="font-size: 20px; font-family: 'Montserrat', sans-serif; width: 100%; border: none; margin: auto; *.focus: {outline:none}"></textarea>
+	<textarea id="graphsyntax" placeholder="graph_type col1 col2 col3" autofocus style="font-size: 20px; font-family: 'Montserrat', sans-serif; width: 100%; border: none; text-align:center; margin: auto; *.focus: {outline:none}"></textarea>
 
 	<br>
 

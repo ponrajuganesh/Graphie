@@ -9,7 +9,7 @@ import pickle
 
 UPLOAD_FOLDER = 'app/files/'
 ALLOWED_EXTENSIONS = set(['csv'])
-ALLOWED_GRAPHTYPES = set(['line', 'pie', 'donut', 'spline', 'area'])
+ALLOWED_GRAPHTYPES = set(['line', 'pie', 'donut', 'spline', 'area', 'bar', 'gauge', 'sbar'])
 
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -86,11 +86,17 @@ def processgraphsyntax():
 
 	result["graphtype"] = graphtype
 
+	axiscolumn = ""
+	
 	for word in rules[1:]:
 		word = word.lower()
 		cols = word.split(":")
 		
-		if len(cols) == 2:
+		if cols[0] == "base":
+			result[cols[1]] = ["x"]
+			cols[0] = cols[1]
+			axiscolumn = cols[1]
+		elif len(cols) == 2:
 			result[cols[0]] = [cols[1]]
 		else:
 			result[cols[0]] = [cols[0]]
@@ -105,6 +111,9 @@ def processgraphsyntax():
 			result[cols[0]] = lists
 		else:
 			result["error"] = "Column " + cols[0] + " not found in file"
-			
+	
+	if axiscolumn:
+		result["axis"] = result[axiscolumn]
+	
 	return jsonify(result)
 
