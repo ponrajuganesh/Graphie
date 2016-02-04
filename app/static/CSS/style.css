@@ -29,3 +29,18 @@ textarea:focus, input:focus{
     outline: none;
 }
 
+textarea {
+	text-align:center	
+}
+
+a {
+	text-decoration:none;
+	text-align: center;
+	font-family: 'Montserrat', sans-serif;
+	font-size: 20px;
+}
+
+a:hover {
+	text-decoration:none;
+}
+
