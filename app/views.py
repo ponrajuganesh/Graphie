@@ -9,7 +9,7 @@ import pickle
 
 UPLOAD_FOLDER = 'app/files/'
 ALLOWED_EXTENSIONS = set(['csv'])
-ALLOWED_GRAPHTYPES = set(['line', 'pie', 'donut', 'spline', 'area', 'bar', 'gauge', 'sbar'])
+ALLOWED_GRAPHTYPES = ['line', 'pie', 'donut', 'spline', 'area', 'bar', 'gauge', 'sbar']
 
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -40,9 +40,11 @@ def dumpgraphdata():
 	result = {}
 	colmapper = {}
 	count = 0
-
+	cols = []
+	
 	for col in header.split(delimiter):
 		col = col.lower()
+		cols.append(col)
 		result[col] = []
 		colmapper[count] = col
 		count += 1
@@ -57,16 +59,18 @@ def dumpgraphdata():
 		eachline = line.split(delimiter)
 		
 		for i in range(0, len(eachline)):
+			print (result, file=sys.stderr)
 			lists = result[colmapper[i]]
+			del result[colmapper[i]]
 			lists.append(eachline[i])
 			result[colmapper[i]] = lists
-
+			
 	fp.close()
 	
 	with open("app/files/data_dump.pik", 'wb') as f:
 		pickle.dump(result, f, -1)
 	
-	return "Dumped the file"
+	return jsonify({"columns": result.keys(), "graphtypes":ALLOWED_GRAPHTYPES})
 
 @app.route('/processgraphsyntax')
 def processgraphsyntax():	
@@ -87,7 +91,7 @@ def processgraphsyntax():
 	result["graphtype"] = graphtype
 
 	axiscolumn = ""
-	
+	columns = []
 	for word in rules[1:]:
 		word = word.lower()
 		cols = word.split(":")
@@ -102,8 +106,9 @@ def processgraphsyntax():
 			result[cols[0]] = [cols[0]]
 		
 		lists = []
-
+	
 		if cols[0] in ds:
+			columns.append(cols[0])
 			for val in ds[cols[0]]:
 				lists = result[cols[0]]
 				lists.append(val)
@@ -115,5 +120,8 @@ def processgraphsyntax():
 	if axiscolumn:
 		result["axis"] = result[axiscolumn]
 	
+	result["columns"] = columns
+	result["graphtypes"] = ALLOWED_GRAPHTYPES
+
 	return jsonify(result)
 

@@ -3,29 +3,68 @@
 <script type="text/javascript">
 	// once the document is ready the file been loaded in to Object
 	var data;
-	$( document ).ready(function() {
+	var columns;
+	var graphtypes;
+
+	$( document ).ready(function() {		
 		$.getJSON($SCRIPT_ROOT + '/dumpgraphdata', {
 			filename: '{{filename}}',
 		}, function(data) {
-			console.log(data);
+			columns = data["columns"];
+			graphtypes = data["graphtypes"];
 		});
+		
+		$("#outerautocomplete").append("<div id='autocomplete' style='display: inline-block;'> </div>");
+		
 		return false;
+	});
+	
+	$(document).on('click', 'a', function () {
+    
+		var graphsyntax = $('textarea#graphsyntax').val();
+		var splitgraphsyntax = graphsyntax.split(' ');
+		var newgraphsyntax = "";
+		if (splitgraphsyntax.length > 1) {
+			newgraphsyntax = graphsyntax.replace(/\s\w+$/," " + $(this).attr('id'));
+		}
+		else {
+			newgraphsyntax = $(this).attr('id')
+		}
+
+		$('textarea#graphsyntax').val(newgraphsyntax);
+		$("#autocomplete").remove();
+		
 	});
 	
 	$(function() {
 		$('#graphsyntax').keyup(function() {
 			var graphsyntax = $('textarea#graphsyntax').val();
+			if (graphsyntax == "") {
+				$("#autocomplete").remove();
+				$("#outerautocomplete").append("<div id='autocomplete' style='display: inline-block;'> </div>");
+				$("#autocomplete").append("<a>Graphs </a>");
+				$.each(graphtypes, function( index, value ) {						
+						var content = "<a id='"+ value +"' href='#'>"+ value +"</a>&nbsp;";
+						$("#autocomplete").append(content);			 
+				});
+				return true;
+			}
 			var lastChar = graphsyntax.substr(graphsyntax.length - 1);
+			
+			if (lastChar == ' ') {
+				return true;
+			}
+			
 			var columnstyped = [];
-
+			
 			if (lastChar == ";") {
+				$("#autocomplete").remove();
+				$("#outerchartdiv").append("<div id='chart'></div>");
 				$("div").remove("#inneralertdiv");
 				graphsyntax = graphsyntax.substr(0, graphsyntax.length-1);
 				$.getJSON($SCRIPT_ROOT + '/processgraphsyntax', {
 					graphsyntax: graphsyntax
-				}, function (data) {
-					
-					
+				}, function (data) {										
 					var graphdata = {};
 					var columns = {};
 					var wholedataarray = [];
@@ -82,8 +121,43 @@
 				});
 				return false;
 			}
+			else {
+				$("#chart").remove();
+				var splitgraphsyntax = graphsyntax.split(' ');
+				var matchedvalues = [];
+				if (splitgraphsyntax.length == 1) {
+					$.each(graphtypes, function( index, value ){
+						if (value.startsWith(splitgraphsyntax[0])) {
+							matchedvalues.push(value);
+						}						
+					});
+				}
+				else {
+					$.each(columns, function( index, value ){
+						if (value.startsWith(splitgraphsyntax[splitgraphsyntax.length-1])) {
+							matchedvalues.push(value);
+						}						
+					});
+				}
+				
+				if (matchedvalues.length > 0) {
+					$("#autocomplete").remove();
+					$("#outerautocomplete").append("<div id='autocomplete' style='display: inline-block;'> </div>");
+					if (matchedvalues.length > 1) {
+						$("#autocomplete").append("<a> Cols: </a>&nbsp;");
+					} else {
+						$("#autocomplete").append("<a> Graphs: </a>&nbsp;");
+					}
+					
+					$.each(matchedvalues, function( index, value ) {						
+						var content = "<a id='"+ value +"' href='#'>"+ value +"</a>&nbsp;";
+						$("#autocomplete").append(content);			 
+					});
+				}
+			}
 
 		});
+		
 
 	});
 </script>
@@ -96,9 +170,14 @@
 
 	<div id="alertdiv">
 	</div>
-	<br>
-	<div id="chart">
-		
+
+	<div id="outerautocomplete" style="margin:auto; position:absolute; top:20%; left:30%">
 	</div>
+	<div id="outerchartdiv">
+		<div id="chart">
+		
+		</div>	
+	</div>
+	
 </div>
 {% endblock %}
