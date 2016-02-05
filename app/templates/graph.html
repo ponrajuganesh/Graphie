@@ -12,9 +12,16 @@
 		}, function(data) {
 			columns = data["columns"];
 			graphtypes = data["graphtypes"];
+			
+			$("#outerautocomplete").append("<div id='autocomplete' style='display: inline-block;'> </div>");
+			$("#autocomplete").append("<a>Graphs </a>");
+			$.each(graphtypes, function( index, value ) {						
+				var content = "<a id='"+ value +"' href='#'>"+ value +"</a>&nbsp;";
+				$("#autocomplete").append(content);			 
+			});
 		});
 		
-		$("#outerautocomplete").append("<div id='autocomplete' style='display: inline-block;'> </div>");
+		
 		
 		return false;
 	});
